@@ -21,50 +21,64 @@ Pour résoudre ce problème, nous utilisons une méthode appelée **tri topologi
 ### Représentation du Graphe
 
 ```java
-List<List<Integer>> graphe = new ArrayList<>();
-for (int i = 0; i < nombreDeCours; i++) {
-    graphe.add(new ArrayList<>());
+private List<List<Integer>> construireGraphe(int nombreDeCours, int[][] prerequis) {
+    List<List<Integer>> graphe = new ArrayList<>();
+    for (int i = 0; i < nombreDeCours; i++) {
+        graphe.add(new ArrayList<>());
+    }
+    for (int[] prerequi : prerequis) {
+        int cours = prerequi[0];
+        int coursPrerequi = prerequi[1];
+        graphe.get(coursPrerequi).add(cours);
+    }
+    return graphe;
 }
 ```
 
 ### Construction du Graphe et du Tableau des Degrés Entrants
 
 ```java
-int[] degresEntrants = new int[nombreDeCours];
-for (int[] prerequi : prerequis) {
-    int cours = prerequi[0];
-    int coursPrerequi = prerequi[1];
-    graphe.get(coursPrerequi).add(cours);
-    degresEntrants[cours]++;
+private int[] calculerDegresEntrants(int nombreDeCours, int[][] prerequis) {
+    int[] degresEntrants = new int[nombreDeCours];
+    for (int[] prerequi : prerequis) {
+        int cours = prerequi[0];
+        degresEntrants[cours]++;
+    }
+    return degresEntrants;
 }
 ```
 
 ### Traitement des Nœuds avec Zéro Degrés Entrants
 
 ```java
-Deque<Integer> file = new ArrayDeque<>();
-for (int i = 0; i < nombreDeCours; i++) {
-    if (degresEntrants[i] == 0) {
-        file.offer(i);
+private Deque<Integer> initialiserFile(int nombreDeCours, int[] degresEntrants) {
+    Deque<Integer> file = new ArrayDeque<>();
+    for (int i = 0; i < nombreDeCours; i++) {
+        if (degresEntrants[i] == 0) {
+            file.offer(i);
+        }
     }
+    return file;
 }
 ```
 
 ### Tri Topologique
 
 ```java
-int coursTraites = 0;
-while (!file.isEmpty()) {
-    int cours = file.poll();
-    coursTraites++;
-    for (int voisin : graphe.get(cours)) {
-        degresEntrants[voisin]--;
-        if (degresEntrants[voisin] == 0) {
-            file.offer(voisin);
+private int traiterCours(List<List<Integer>> graphe, int[] degresEntrants, Deque<Integer> file) {
+    int coursTraites = 0;
+    while (!file.isEmpty()) {
+        int cours = file.poll();
+        coursTraites++;
+        for (int voisin : graphe.get(cours)) {
+            degresEntrants[voisin]--;
+            if (degresEntrants[voisin] == 0) {
+                file.offer(voisin);
+            }
         }
     }
+    return coursTraites;
 }
-return coursTraites == nombreDeCours;
 ```
 
 
